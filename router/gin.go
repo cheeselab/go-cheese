@@ -8,7 +8,8 @@ import (
 
 type (
 	RouterGin struct {
-		routes []RouteGin
+		routes      []RouteGin
+		middlewares []gin.HandlerFunc
 	}
 
 	RouteGin struct {
@@ -56,6 +57,7 @@ func (r *RouterGin) Options(path string, handleFunc interface{}) {
 
 func (r *RouterGin) Run() error {
 	router := gin.Default()
+	// Set routes
 	for _, route := range r.routes {
 		switch route.Method {
 		case http.MethodGet:
@@ -72,5 +74,13 @@ func (r *RouterGin) Run() error {
 			router.OPTIONS(route.Path, route.Handler)
 		}
 	}
+	// Set middlewares
+	for _, m := range r.middlewares {
+		router.Use(m)
+	}
 	return router.Run(":8000")
+}
+
+func (r *RouterGin) UseMiddleware(middleware interface{}) {
+	r.middlewares = append(r.middlewares, middleware.(gin.HandlerFunc))
 }

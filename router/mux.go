@@ -10,7 +10,8 @@ import (
 
 type (
 	RouterMux struct {
-		routes []RouteMux
+		routes      []RouteMux
+		middlewares []func(http.Handler) http.Handler
 	}
 
 	RouteMux struct {
@@ -58,8 +59,13 @@ func (r *RouterMux) Options(path string, handleFunc interface{}) {
 
 func (r *RouterMux) Run() error {
 	muxRouter := mux.NewRouter()
+	// Set routes
 	for _, route := range r.routes {
 		muxRouter.HandleFunc(route.Path, route.Handler).Methods(strings.ToUpper(route.Method))
+	}
+	// Set middlewares
+	for _, m := range r.middlewares {
+		muxRouter.Use(m)
 	}
 	srv := &http.Server{
 		Handler: muxRouter,
@@ -70,4 +76,8 @@ func (r *RouterMux) Run() error {
 	}
 
 	return srv.ListenAndServe()
+}
+
+func (r *RouterMux) UseMiddleware(middleware interface{}) {
+	r.middlewares = append(r.middlewares, middleware.(func(http.Handler) http.Handler))
 }

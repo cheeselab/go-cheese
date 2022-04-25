@@ -14,6 +14,7 @@ type (
 		Delete(path string, handleFunc interface{})
 		Options(path string, handleFunc interface{})
 		Run() error
+		UseMiddleware(middleware interface{})
 	}
 )
 
