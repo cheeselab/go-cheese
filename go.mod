@@ -1,4 +1,4 @@
-module github.com/CheeseLab/go-cheese
+module github.com/cheeselab/go-cheese
 
 go 1.17
 
